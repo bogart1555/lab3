@@ -5,7 +5,6 @@
 #include <cstring>
 #include "myendian.h"
 
-
 using namespace std;
 
 class RunLengthEncodingArchiver {
@@ -16,8 +15,8 @@ public:
 
 		uint16_t count = 0;
 
-		int last, c;
-		while ((c = fgetc(fi)) != EOF) {
+		int last;
+		for (int c = (last = fgetc(fi)); c != EOF; c = fgetc(fi)) {
 			if (c == last) {
 				count++;
 				continue;
@@ -27,8 +26,11 @@ public:
 			last = c;
 			count = 1;
 		}
-		PutBE16(count, fo);
-		fputc(last, fo);
+
+		if (count > 0) {
+			PutBE16(count, fo);
+			fputc(last, fo);
+		}
 
 		fclose(fi);
 		fclose(fo);
@@ -58,16 +60,15 @@ int main(int argc, char **argv) {
 	cout << "hello world" << endl;
 
 
-	// --- удалить при запуске на компьютере ---
-	//argc = 4;
-	//argv = new char *[argc];
-	// argv[1] = (char *) "--compress";
-	// argv[2] = (char *) "output.rle";
-	// argv[3] = (char *) "input.bmp";
-	//argv[1] = (char *) "--decompress";
+	argc = 4;
+	argv = new char *[argc];
+	argv[1] = (char *) "--compress";//для сжатия
+	argv[2] = (char *) "output.rle";
+	argv[3] = (char *) "input.bmp";
+	//argv[1] = (char *) "--decompress";//для распаковки
 	//argv[2] = (char *) "output.rle";
 	//argv[3] = (char *) "input2.bmp";
-	// -----------------------------------------
+	
 
 
 	if (argc != 4) {
@@ -91,6 +92,7 @@ int main(int argc, char **argv) {
 		cout << " <--compress|--decompress> <input file> <output file>";
 		cout << endl;
 	}
-	system("pause");
+
 	return 0;
+	system("pause");
 }
